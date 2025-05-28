@@ -169,7 +169,7 @@ public class MyTests
 }
 ```
 
-* .Net Core 301範例
+* .Net Core 3.1範例
 
 ```C#
 [TestClass]

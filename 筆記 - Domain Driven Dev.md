@@ -17,6 +17,10 @@
       - [Application Service](#application-service)
     - [Pattern與架構套裝](#pattern與架構套裝)
       - [Event](#event)
+  - [重點心得](#重點心得)
+    - [Aggregate Root / Entity](#aggregate-root--entity)
+    - [Domain Service](#domain-service)
+    - [Application Service](#application-service-1)
 
 
 ## <a name='-ABPFramework'></a>架構套件 - ABP Framework
@@ -769,3 +773,27 @@ public class MyApp(ILocalEventBus eventBus)
     }
 }
 ```
+
+## 重點心得
+
+### Aggregate Root / Entity
+
+1. Entity / Aggregate Root著重在record "ID"的操作主導性，作為CRUD的根本依據 (而不是傳統的各種Where條件)
+2. Domain邏輯越靠近Entity / Aggregate Root越好，不過不能包含資料庫Repository、Collection等邏輯在裡面
+3. Aggregate Root底下的各種Entity / Owned Entity，需以主ID做關聯、並且留意Create / Update Date等相關參數需要與否
+4. Aggregate Root留意Concurrency Stamp做資料覆寫保護
+5. Aggregate Root注意Entity的關注點分離(比如CRUD內的互相影響)，保留其擴充性與彈性
+   - 舉例: 一次只更新一個Related Entity而不是一整組
+   - 舉例: 部分Property / Related Entity改動要不要涉及Concurrency Stamp的檢查保護
+
+### Domain Service
+
+1. 需外部相依的Service、複雜的邏輯等，需從Entity那邊獨立過來
+2. 小缺點: Entity的Auto mapper會無法自動mapping
+3. 注意: 跟Collection / Repository有關的東西，要放在App Service而不是這裡
+
+### Application Service
+
+1. 注意Domain邏輯的操作性 (比如A Property存在就不能Delete entity，那就要注意先操作A Property再做Delete)
+2. Application Service間可以互相呼叫，比如可作為部分App Service的擴充 (但注意一定要用DTO做溝通)
+3. DTO的共用性須注意，權衡要選擇"減少重複維護"/"分離讀寫或類似功能"的時間成本考量

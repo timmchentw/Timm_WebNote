@@ -5,13 +5,13 @@
 [Vue](#Vue) </br>
 
 # JavaScript
-* 載入與初始化 (載入外部套件可使用網址)
+- 載入與初始化 (載入外部套件可使用網址)
 ```html
 <script type="text/javascript" src="~/Scripts/JS套件.js"></script>
 ```
 
-* => (簡化function) </br>
-**單行簡化** (無x則為空括號)
+- => (簡化function) </br>
+**單行簡化*- (無x則為空括號)
 ```javascript
 var func = x => x+1
 // 原型為
@@ -30,7 +30,7 @@ var func = function(x) {
 }
 ```
 
-* HTML DOM控制
+- HTML DOM控制
 
 | document | 說明 |
 | --- | --- |
@@ -49,7 +49,7 @@ var func = function(x) {
 | `.location.reload()` | 刷新/開新網頁 |
 | `.location.replace(URL)` | 開新網頁 |
 
-* 下載功能
+- 下載功能
 ```javascript
 var a = document.createElement('a');    // Create hyperlink for download
 var url = "下載網址在這裡";
@@ -78,16 +78,16 @@ a.click();
 | `myArray.split(seperator, [num])` | 以符號去切割字串 |
 
 ## ES6
-* let   可變變數，且只存在該循環中(local)，不會更改原變數記憶體 <br>
-* const 不可變變數，不會更改原變數記憶體
+- let   可變變數，且只存在該循環中(local)，不會更改原變數記憶體 <br>
+- const 不可變變數，不會更改原變數記憶體
 
 
 # JQuery
-* 第一次使用須於html引用
+- 第一次使用須於html引用
 ```html
 <script src="~/Scripts/jquery-3.3.1.min.js"></script>
 ```
-* 網頁載入完成時直接執行
+- 網頁載入完成時直接執行
 ```javascript
 $(document).ready(function(){
   // TYPE SCRIPT HERE
@@ -99,7 +99,7 @@ $(function(){
   // TYPE SCRIPT HERE 
 });
 ```
-* $(this)
+- $(this)
 $('...').on(...)的事件中，<br>
 可使用$(this)指到目前的DOM
 
@@ -137,10 +137,20 @@ $('...').on(...)的事件中，<br>
 | `.removeAttr('attribute_name')`| 移除attribute內容 |
 | `.valid()` | 驗證form |
 
+### IIFE (Immediately Invoked Function Expression)
+
+- 頁面載入完成
+
+```javascript
+(function( window, undefined ) {
+  // ...
+})( window );
+```
+
 ### AJAX
 
-* .ajax
-* [.getJSON](https://www.runoob.com/jquery/ajax-getjson.html)
+- .ajax
+- [.getJSON](https://www.runoob.com/jquery/ajax-getjson.html)
 
 
 觸發動作後，須在括號內加入`function() {...}`
@@ -148,27 +158,27 @@ $('...').on(...)的事件中，<br>
 ### 套件與功能
 
 #### 表格
-* [DataTables](https://datatables.net/) 動態表格
-* [Dynatable](https://github.com/alfajango/jquery-dynatable) 動態表格
-* [igGrid](https://www.igniteui.com/help/iggrid-overview) 功能齊全的Infragistics系列-動態表格
+- [DataTables](https://datatables.net/) 動態表格
+- [Dynatable](https://github.com/alfajango/jquery-dynatable) 動態表格
+- [igGrid](https://www.igniteui.com/help/iggrid-overview) 功能齊全的Infragistics系列-動態表格
 
 #### 通知
-* [Dialog](https://jqueryui.com/dialog/) 彈出視窗
-* [Bootstrap Toasts](https://getbootstrap.com/docs/5.0/components/toasts/) 彈出小窗格
+- [Dialog](https://jqueryui.com/dialog/) 彈出視窗
+- [Bootstrap Toasts](https://getbootstrap.com/docs/5.0/components/toasts/) 彈出小窗格
 
 #### 選單
-* [Collapse (bootstrap)](https://www.runoob.com/bootstrap/bootstrap-collapse-plugin.html) 開闔式按鈕
-* [zTree](http://www.treejs.cn/v3/main.php#_zTreeInfo) 樹狀圖選單
+- [Collapse (bootstrap)](https://www.runoob.com/bootstrap/bootstrap-collapse-plugin.html) 開闔式按鈕
+- [zTree](http://www.treejs.cn/v3/main.php#_zTreeInfo) 樹狀圖選單
 
 
 #### Input
-* 使用`<input type="file" id="file">`在前端取得檔案
+- 使用`<input type="file" id="file">`在前端取得檔案
 
   ```javascript
   $('#file').change( function(e) {
 
 #### 其他
-* [Dialog](https://jqueryui.com/dialog/) 彈出視窗(JQuery)
+- [Dialog](https://jqueryui.com/dialog/) 彈出視窗(JQuery)
 
   ```html
   <script>
@@ -182,13 +192,13 @@ $('...').on(...)的事件中，<br>
   </div>
   ```
 
-* [PNotify](https://sciactive.com/pnotify/) 彈出通知
+- [PNotify](https://sciactive.com/pnotify/) 彈出通知
   
   ```js
   new PNotify({ text: "Something wrong!", type: 'error', styling: 'bootstrap3' });
   ```
 
-* [toastr](https://github.com/CodeSeven/toastr)
+- [toastr](https://github.com/CodeSeven/toastr)
 
   ```js
   toastr.success("success","");
@@ -197,7 +207,7 @@ $('...').on(...)的事件中，<br>
   toastr.warning("warning","");
   ```
 
-* [DataTables](https://datatables.net/) 動態表格 (JQuery)
+- [DataTables](https://datatables.net/) 動態表格 (JQuery)
   
   ```html
   <script>
@@ -243,15 +253,15 @@ $('...').on(...)的事件中，<br>
   </table>
   ```
 
-* [Dropzone](https://www.dropzonejs.com/) 拖拉式上傳
-* [Collapse (bootstrap)](https://www.runoob.com/bootstrap/bootstrap-collapse-plugin.html) 開闔式按鈕
-* [zTree](http://www.treejs.cn/v3/main.php#_zTreeInfo) 樹狀圖選單
-* [tokenInput](https://loopj.com/jquery-tokeninput/) 搜尋建議標籤 
-* [redactor](https://imperavi.com/redactor/) HTML編輯器
+- [Dropzone](https://www.dropzonejs.com/) 拖拉式上傳
+- [Collapse (bootstrap)](https://www.runoob.com/bootstrap/bootstrap-collapse-plugin.html) 開闔式按鈕
+- [zTree](http://www.treejs.cn/v3/main.php#_zTreeInfo) 樹狀圖選單
+- [tokenInput](https://loopj.com/jquery-tokeninput/) 搜尋建議標籤 
+- [redactor](https://imperavi.com/redactor/) HTML編輯器
 
 ### 功能
 
-* 使用`<input type="file" id="file">`在前端取得檔案
+- 使用`<input type="file" id="file">`在前端取得檔案
 
   ```javascript
   $('#file').change(function(e) {
@@ -260,13 +270,41 @@ $('...').on(...)的事件中，<br>
   });
   ```
 
-* [tokenInput](https://loopj.com/jquery-tokeninput/) 搜尋建議標籤 
-* [Dropzone](https://www.dropzonejs.com/) 拖拉式上傳
-* [igCombo](https://www.igniteui.com/help/igcombo-overview) 功能齊全的Infragistics系列-搜尋與下拉
-* [Dual-List-Selector](https://www.patternfly.org/components/dual-list-selector/) 左右清單選擇器
+- [tokenInput](https://loopj.com/jquery-tokeninput/) 搜尋建議標籤 
+- [Dropzone](https://www.dropzonejs.com/) 拖拉式上傳
+- [igCombo](https://www.igniteui.com/help/igcombo-overview) 功能齊全的Infragistics系列-搜尋與下拉
+- [Dual-List-Selector](https://www.patternfly.org/components/dual-list-selector/) 左右清單選擇器
+
+#### 跨頁溝通
+
+- sessionStorage
+  - Session Storage可達到跨頁間的資訊互傳
+  - 分頁間不互通
+  - 只能儲存簡單型別(建議為JSON)
+
+  ```javascript
+  var dataJson = sessionStorage.getItem('target.data.key');
+  var data = JSON.parse(dataJson);
+  sessionStorage.setItem('target.data.key', JSON.stringify(data));
+  ```
+
+- BroadcastChannel
+  - 用於跨頁間的Event Trigger
+
+  ```javascript
+  var broadcastChannel = new BroadcastChannel('sample.channel');
+  broadcastChannel.onmessage = function (event) {
+      debugger;
+      if (event.data.eventName === "method1") {
+          someFunction();
+      }
+  };
+
+  broadcastChannel.postMessage("method1");
+  ```
 
 #### 擴充功能
-* [redactor](https://imperavi.com/redactor/) HTML編輯器
+- [redactor](https://imperavi.com/redactor/) HTML編輯器
 
 
 # [ReactJS](https://github.com/timmchentw/Web-Note-Text/blob/master/%E7%AD%86%E8%A8%98%20-%20JS%20React.md)
@@ -276,5 +314,5 @@ $('...').on(...)的事件中，<br>
 
 # Storage
 
-* LocalStorage: 用於儲存長期客戶端常使用的資料
-* SessionStorage: 用於儲存"各Tab"客戶端常使用的資料 (關閉Tab即會清除)
+- LocalStorage: 用於儲存長期客戶端常使用的資料
+- SessionStorage: 用於儲存"各Tab"客戶端常使用的資料 (關閉Tab即會清除)

@@ -68,11 +68,55 @@
   * 可用於重構程式碼
   * 給予更多語法與優化方法
 
-## 快捷鍵
+### 快捷鍵
 ![image](./images/github%20copilot/22.png)
 ![image](./images/github%20copilot/23.png)
 
+### 語法
 
+- `@workspace`: 指定範圍
+  - `#file`
+  - `#selection`
+  - `#editor`: 整個編輯器
+- 範例
+  - 前端
+    - `Fixed Header`, `Fixed Footer`: 頁頭頁尾CSS+HTML範例
+  - Code
+    - `What the code do?`
+    - `Explain this regex`
+    - `Fix bugs`
+    - `Create unit test`
+    - `Change the variables with better name`
+  - SQL
+    - `Find all columns with name including "XXX"` 
+      - 產出 `SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME LIKE 'roduct'
+`
+    - `The MB used by the database`
+    - `Optimizing the function XXX`
+    - `Adding Index to table XXX`
+
+## 心態
+
+- 不要讓AI主掌職責 (Copilot是輔助)
+  - 不一定安全
+  - 一定要自己Review
+  - 可讓AI指明方向
+- 善用適合的工具
+  - 優先用Inline chat (不要用comment promt)
+    - `/fix`: 快速修BUG
+    - `/explain`
+    - `/fix`
+    - `/tests`
+  - 加速填入則ghost text較有效率
+  - 詳細功能用Chat panel
+    - `/api`
+    - `/search`
+    - `/newChat`
+- 提供上下文(context)
+  - 選取要問的Code範圍
+  - 關聯Code要打開
+- Feedback功能
+  - 問答有沒有幫助按下讚/倒讚
 
 ## 相關資源
 

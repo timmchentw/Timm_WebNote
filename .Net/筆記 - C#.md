@@ -4,6 +4,8 @@
   - [**《字串處理》**](#字串處理)
     - [檔案字串](#檔案字串)
     - [Regex (Regular Expression字串格式檢查)](#regex-regular-expression字串格式檢查)
+      - [語法](#語法)
+      - [Email檢查](#email檢查)
   - [變數型態](#變數型態)
     - [基本型態](#基本型態)
     - [資料結構](#資料結構)
@@ -55,6 +57,10 @@
   - [Generic](#generic)
     - [where](#where)
   - [Assembly](#assembly)
+  - [Url](#url)
+  - [Comment](#comment)
+    - [Documentation](#documentation)
+  - [Extension](#extension)
   - [Reference:](#reference)
 
 * [用Dict去做掃描比LINQ Where速度快上10倍以上](https://blog.darkthread.net/blog/linq-search-performance-issue)
@@ -189,11 +195,12 @@
 | Func | 輸入輸出委派 | 定義輸入輸出型別的委派 |  |
 
 ### 資料Interface
+
 | 型態 | 名稱 | 特性 | 範例|
 |-----|-----|-----|-----|
-| IEnumerable |  | 最簡便的多值物件規範 |  |
+| IEnumerable |  | 最簡便的多值物件規範(最不嚴謹，注意set value可能不可用) |  |
 | ICollection |  | 擴充IEnumerable，如Add(), Remove(), Contains() |  |
-| IList |  | 擴充ICollection，如Insert(), RemoveAt(), this[] |  |
+| IList |  | 擴充ICollection，如Insert(), RemoveAt(), this[] (注重順序、index效能等) |  |
 
 ## 修飾詞
 

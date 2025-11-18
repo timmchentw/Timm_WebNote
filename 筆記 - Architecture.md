@@ -6,10 +6,83 @@
 
 ## Mediator
 
-* 服務中介層，可讓高層級端不須注入特定型別的Service，僅需呼叫這個中介層，達到完全解耦 (比如兩個不能互相相依的projects)
+* 服務中介層，可讓高層級端不須注入特定型別的Service，僅需呼叫這個中介層，達到完全解耦 
+  * 使用情境: 如兩個不能互相相依的projects
+  * 範例: Product get對cache handler的鬆散依賴
 * 為中介者模式實作，一般會搭配CQRS模式
+  * SQRS: Command and Query Responsibility Segregation = 寫入與讀取職責分離
+    * 範例: GetProductQueryHandler 專門處理查詢、AddProductCommandHandler 專門處理新增、UpdateProductCommandHandler 專門處理更新
+* 與Event差異: Mediator重視來回一對一同步溝通，Event則否
 * 套件: MediatR
-* 範例
+* 程式碼範例
+
+```C#
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+
+// ===== 1. 定義Query物件 (查詢請求) =====
+public record GetProductQuery(int ProductId) : IRequest<ProductDto>;  // 實作IRequest<回傳型別>
+
+public record ProductDto(int Id, string Name, decimal Price);
+
+// ===== 2. 定義Query Handler邏輯 (查詢處理器) =====
+public class GetProductQueryHandler : IRequestHandler<GetProductQuery, ProductDto>
+{
+    private readonly IMemoryCache _cache;
+    private readonly IProductRepository _repository;
+
+    public GetProductQueryHandler(IMemoryCache cache, IProductRepository repository)
+    {
+        _cache = cache;
+        _repository = repository;
+    }
+
+    // 處理邏輯: 先查Cache，沒有再查DB
+    public async Task<ProductDto> Handle(GetProductQuery request, CancellationToken cancellationToken)
+    {
+        var cacheKey = $"Product_{request.ProductId}";
+        
+        // 檢查Cache
+        if (_cache.TryGetValue(cacheKey, out ProductDto cachedProduct))
+            return cachedProduct;
+
+        // 查詢DB
+        var product = await _repository.GetByIdAsync(request.ProductId, cancellationToken);
+        
+        if (product != null)
+        {
+            // 存入Cache
+            _cache.Set(cacheKey, product, TimeSpan.FromMinutes(10));
+        }
+
+        return product;
+    }
+}
+
+// ===== 3. 使用範例 (Controller) =====
+public class ProductController : ControllerBase
+{
+    private readonly IMediator _mediator;  // 注入Mediator (不需知道Handler細節)
+
+    public ProductController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ProductDto>> GetProduct(int id)
+    {
+        // 透過Mediator發送Query，自動找到對應Handler執行
+        var product = await _mediator.Send(new GetProductQuery(id));
+        
+        return product != null ? Ok(product) : NotFound();
+    }
+}
+
+// ===== 4. DI 註冊 =====
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+```
 
 ### 相關連結
 
@@ -17,163 +90,124 @@
 * [MSDN](https://learn.microsoft.com/en-us/azure/architecture/patterns/cqrs)
 
 ## Event Driven Architecture (TDA)
+
 * 優點: 低耦合關係，使得不同Component能夠跨域溝通
-* Subscribe
-  * 用於訂閱事件，比如Get/Set特定Cache時，綁定Reset Delegate
-* Publish
-  * 用於對事件進行變動(更新)，比如觸發Reset特定Cache的Delegate
-* 使用`ConcurrentDictionary`跨執行緒紀錄事件
-* 範例
+* 與Mediator的差異:
+  * Event屬射後不理 (fire-and-forget)
+    * Mediator則是不在意跟哪個詳細型別做互動，但通常會有回傳值
+  * 非同步、不在意結果
+  * 可一對多
+* Event
+  * 為一個簡單物件，負責傳遞Event資訊，與Handler可為不同概念 (通常較廣)
+    * 比如User Added, Product deleted...等
+* Event Handler
+  * 與Event綁定，負責處理事件內容邏輯 (通常較細節)
+    * 比如操作Cache、寄送通知...等
+    * 單一Event可給多個Event Handler非同步觸發
+* Event Bus
+  * 為Event處理的中介層，負責做觸發與接收
+  * Subscribe
+    * 用於訂閱事件 (綁定Event & Handler)
+  * Publish
+    * 用於觸發事件 (執行Event handler)
+  * 使用`ConcurrentDictionary`跨執行緒紀錄事件
+  * 程式碼範例
 
 ```C#
-public class EventBroker : IEventBroker
+// ===== 1. 定義Event (事件類別) =====
+public record ProductDeletedEvent(int ProductId);  // 產品刪除事件
+
+// ===== 2. 定義Event Handler (事件處理器) =====
+public interface IEventHandler<in TEvent>
 {
-    private readonly ConcurrentDictionary<EventType, ConcurrentDictionary<string, Delegate>> _eventSubscribers;
+    Task HandleAsync(TEvent evt);
+}
 
-    public EventBroker()
+// 實作Handler: 清除Cache
+public class ClearCacheHandler : IEventHandler<ProductDeletedEvent>
+{
+    private readonly IMemoryCache _cache;
+
+    public ClearCacheHandler(IMemoryCache cache) => _cache = cache;
+
+    public Task HandleAsync(ProductDeletedEvent evt)
     {
-        _eventSubscribers = new ConcurrentDictionary<EventType, ConcurrentDictionary<string, Delegate>>();
-    }
-
-    // 呼叫Event的觸發點(包含輸入參數)
-    public async Task<bool> PublishAsync<T>(EventType eventType, T message)
-    {
-        // 沒有訂閱(註冊)的Type不適用
-        if (!_eventSubscribers.ContainsKey(eventType))
-        {
-            return true;
-        }
-
-        // 取出訂閱的Actions
-        ConcurrentDictionary<string, Delegate> actions = _eventSubscribers[eventType];
-
-        if (actions?.IsEmpty != false)
-        {
-            return true;
-        }
-
-        try
-        {
-            List<Task> tasks = new();
-
-            // 執行所選Type的Actions & 轉入參數
-            foreach (KeyValuePair<string, Delegate> action in actions)
-            {
-                tasks.Add(Task.Run(() => action.Value.Method.Invoke(action.Value.Target,
-                                                                    action.Value.Method.GetParameters().Length > 0
-                                                                    ? new object[] { message }
-                                                                    : null)));
-            }
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-
-            return true;
-        }
-        catch (AggregateException ex)
-        {
-            foreach (Exception innerException in ex.InnerExceptions)
-            {
-                // Exception content handling
-            }
-            return false;
-        }
-        catch (Exception ex)
-        {
-            // Exception content handling
-            return false;
-        }
-    }
-
-    // 綁定Event action所用
-    public string Subscribe(EventType eventType, Delegate action)
-    {
-        ConcurrentDictionary<string, Delegate> actions = _eventSubscribers.GetOrAdd(eventType, new ConcurrentDictionary<string, Delegate>());
-        string subscribeToken = Guid.NewGuid().ToString();
-        actions[subscribeToken] = action;
-
-        return subscribeToken;
-    }
-
-    // 解除綁定Event
-    public bool UnSubscribe(EventType eventType, string subscribeToken)
-    {
-        return _eventSubscribers.ContainsKey(eventType)
-               && _eventSubscribers[eventType].TryRemove(subscribeToken, out _);
+        _cache.Remove(evt.ProductId);
+        return Task.CompletedTask;
     }
 }
 
-public enum EventType
+// 實作Handler: 發送通知
+public class SendNotificationHandler : IEventHandler<ProductDeletedEvent>
 {
-    ProductAdd,
-    ProductRemove,
-    SetProductCache,
-    DeleteProductCache
-}
-
-// 綁定範例
-public class ProductCache : IProductCache
-{
-    private readonly IEventBroker _eventBroker;
-    private readonly IProductRepository _repository;
-
-    public ProductDataCache(IEventBroker eventBroker, IProductRepository repository)
+    public Task HandleAsync(ProductDeletedEvent evt)
     {
-        _cache = new MemoryCache(options);
-        _eventBroker = eventBroker;
-        _repository = repository;
-
-        SubscribeEvents();
-    }
-
-    public Task<IProductCacheModel> GetAsync(int productId)
-    {
-        if (productId <= 0)
-        {
-            return Task.FromResult<IProductCacheModel>(new IProductCacheModel());
-        }
-
-        return _cache.GetOrCreateAsync(productId, async entry =>
-        {
-            entry.SetSlidingExpiration(new TimeSpan(1, 0, 0));
-            entry.SetSize(1);
-            return await _repository.GetProductAsync(productId) ?? new IProductCacheModel();
-        });
-    }
-
-    // 註冊的部分
-    private void SubscribeEvents()
-    {
-        _eventBroker.Subscribe(EventType.DeleteProductCache, RemoveFromCacheAction());
-    }
-
-    private Action<int> RemoveFromCacheAction()
-    {
-        return RemoveFromCache;
-    }
-
-    private void RemoveFromCache(int productId)
-    {
-        // 將操作Cache的部分委派給Event
-        _cache.Remove(productId);
+        // 發送Email或其他通知...
+        Console.WriteLine($"Product {evt.ProductId} deleted notification sent");
+        return Task.CompletedTask;
     }
 }
 
-// 取用範例
-public class MyApp
+// ===== 3. Event Bus (事件中介) =====
+public class EventBus
 {
-    private readonly IEventBroker _eventBroker;
+    // Key: Event類型, Value: Handler清單
+    private readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> _handlers = new();
 
-    public MyApp(IEventBroker eventBroker)
+    // 訂閱: 註冊Handler到特定Event
+    public string Subscribe<TEvent>(IEventHandler<TEvent> handler)
     {
-        _eventBroker = eventBroker;
+        var eventType = typeof(TEvent);
+        var handlers = _handlers.GetOrAdd(eventType, _ => new());
+        
+        var token = Guid.NewGuid().ToString();
+        handlers[token] = handler;
+        return token;
     }
 
-    public async Task<bool> DeleteProduct(int productId)
+    // 發布: 觸發所有訂閱該Event的Handlers
+    public async Task PublishAsync<TEvent>(TEvent evt)
     {
-        // ...
-            _ = _eventBroker.PublishAsync(EventType.DeleteProductCache, productId);
-        // ...
-        return true;
+        var eventType = typeof(TEvent);
+        
+        if (!_handlers.TryGetValue(eventType, out var handlers))
+            return;
+
+        var tasks = handlers.Values
+            .Cast<IEventHandler<TEvent>>()
+            .Select(h => h.HandleAsync(evt));
+
+        await Task.WhenAll(tasks);
+    }
+
+    // 取消訂閱
+    public void Unsubscribe<TEvent>(string token)
+    {
+        if (_handlers.TryGetValue(typeof(TEvent), out var handlers))
+            handlers.TryRemove(token, out _);
+    }
+}
+
+// ===== 4. 使用範例 =====
+public class ProductService
+{
+    private readonly EventBus _eventBus;
+
+    public ProductService(EventBus eventBus)
+    {
+        _eventBus = eventBus;
+        
+        // 訂閱事件
+        _eventBus.Subscribe(new ClearCacheHandler(/* cache */));
+        _eventBus.Subscribe(new SendNotificationHandler());
+    }
+
+    public async Task DeleteProductAsync(int productId)
+    {
+        // 刪除產品邏輯...
+        
+        // 發布事件 (自動觸發所有Handler)
+        await _eventBus.PublishAsync(new ProductDeletedEvent(productId));
     }
 }
 ```

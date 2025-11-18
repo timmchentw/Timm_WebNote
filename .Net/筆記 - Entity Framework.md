@@ -339,6 +339,57 @@ public class Enrollment
 }
 ```
 
+- Id欄位非典型名稱
+  - 如果DB的PK Column Name不是Id，那就沒辦法讓EF自動設定PK、FK
+  - 可以設定Column name mapping to Id欄位，讓Code的Id保持維護性
+
+```C#
+public class RoleConfiguration : IEntityTypeConfiguration<Role>
+{
+    public void Configure(EntityTypeBuilder<Role> builder)
+    {
+        builder.ToTable("Roles");
+
+        // SQL DB PK Column為RoleId
+        builder.Property(x => x.Id)
+               .HasColumnName("RoleId");
+
+        // 外鍵
+        builder.Navigation(x => x.BusinessUnit)
+                .AutoInclude();
+
+        builder.HasMany<BusinessUnit>()
+                .WithOne(d => d.Role)
+                .HasForeignKey(d => d.RoleId)
+                .HasPrincipalKey(x => x.Id)
+                .OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class Role
+{
+    public int Id { get; protected set; }
+    public string Name { get; protected set; }
+    public string Description { get; protected set; }
+    public int BusinessUnitId { get; protected set; }
+
+    public virtual BusinessUnit BusinessUnit { get; protected set; }
+
+    public Role(string name, int teamId, string description)
+    {
+        Name = name;
+        TeamId = teamId;
+        Description = description;
+    }
+
+    internal Role()
+    { }
+}
+```
+
+```C#
+
+```
 
 #### Eager, Lazy, Implicit Load
 

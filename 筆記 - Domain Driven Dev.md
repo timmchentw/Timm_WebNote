@@ -9,7 +9,7 @@
     - [DDD架構實作](#ddd架構實作)
       - [Entity: 最底層的實體物件](#entity-最底層的實體物件)
       - [AggregateRoot: 集合Properties \& Entities的集合體](#aggregateroot-集合properties--entities的集合體)
-      - [Audit Properties: 提供不少Interface/Class作為擴充properties使用](#audit-properties-提供不少interfaceclass作為擴充properties使用)
+        - [- Audit Properties: 提供不少Interface/Class作為擴充properties使用](#--audit-properties-提供不少interfaceclass作為擴充properties使用)
       - [Value Object: 描述Domain但不含邏輯的值物件](#value-object-描述domain但不含邏輯的值物件)
       - [Repositories: Domain與資料層的中介，負責資料處理、操作等](#repositories-domain與資料層的中介負責資料處理操作等)
       - [Specification: 基於Domain物件的特例](#specification-基於domain物件的特例)
@@ -248,8 +248,12 @@
 
 #### AggregateRoot: 集合Properties & Entities的集合體
   
+- Key Column為GUID型別
 - 可包含操作邏輯 (如CRUD)，注意只針對其自身的型別與實體的操作
   - 比如新增/刪除Owned entity instance
+- 何時決定要用Entity or Aggregate Root?
+  - 簡單、封閉、無特定子Entity property → Entity
+  - 邏輯會影響其他Entity、有許多子Property or Value Object不會獨立存在(邊界較廣) → Aggregate Root
 
 ```C#
 public class Order : AggregateRoot<Guid>
@@ -303,9 +307,9 @@ public class Order : AggregateRoot<Guid>
 }
 ```
 
-#### Audit Properties: 提供不少Interface/Class作為擴充properties使用
+  ##### - Audit Properties: 提供不少Interface/Class作為擴充properties使用
 
-- 比如: IHasCreationTime, IMayHaveCreator, ICreationAuditedObject
+  - 比如: IHasCreationTime, IMayHaveCreator, ICreationAuditedObject
 
 #### Value Object: 描述Domain但不含邏輯的值物件
 
@@ -401,6 +405,8 @@ public class Order : AggregateRoot<Guid>
     }
     ```
 
+
+
   - Query / Linq語法支援: `GetQueryableAsync`取得IQueryable物件
 
     ```C#
@@ -460,7 +466,12 @@ public class Order : AggregateRoot<Guid>
     }
     ```
 
+    ##### - DbContext必要設定
+
+    - 必須設定Implement DbContext才能順利連到DB，詳細請見[ABP筆記](.net/筆記%20-%20ABP%20Framework.md)
+
   - Custom Repository: 自行繼承Interface / Class (如EfCoreRepository)
+    - 用於擴充ABP預設提供的方法(基本有CRUD)
 
     ```C#
     public interface IPersonRepository : IRepository<Person, Guid>
@@ -705,6 +716,7 @@ public class Order : AggregateRoot<Guid>
     |內容|跟使用者互動有關的行為(如Web)|核心邏輯、獨立領域知識|
     |返回型別|Data Transfer Object (DTO)|Domain Objects (Entities, Value Object)|
     |相依來源|Presentation Layer / Client Applications|Application Service / 其他Domain Services|
+    |舉例|搜尋List、Aggregate/Entity混合互動、與其他AppService互動|Entity內特定欄位間關係、規則邏輯計算、Null檢查等|
 
     ```C#
     public class BookAppService : ApplicationService, IBookAppService

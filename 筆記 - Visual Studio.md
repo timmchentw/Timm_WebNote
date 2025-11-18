@@ -1,5 +1,29 @@
 # Visual Studio
 
+- [Visual Studio](#visual-studio)
+  - [Code snippet](#code-snippet)
+  - [Shortcuts](#shortcuts)
+    - [Display related](#display-related)
+    - [Edit related](#edit-related)
+  - [Power Tools](#power-tools)
+  - [Team Explorer](#team-explorer)
+    - [設定連接Remote Repostories](#設定連接remote-repostories)
+  - [Test Explorer](#test-explorer)
+  - [Live Share (Collabaration)](#live-share-collabaration)
+  - [Code Map](#code-map)
+  - [Debug](#debug)
+  - [Task Runner Explorer](#task-runner-explorer)
+  - [Parrellel Stacks](#parrellel-stacks)
+  - [Exception Settings](#exception-settings)
+  - [Issues](#issues)
+    - [電腦自授權SSL出問題](#電腦自授權ssl出問題)
+- [Visual Studio Code](#visual-studio-code)
+  - [Settings](#settings)
+  - [Extensions](#extensions)
+    - [Markdown](#markdown)
+    - [Language](#language)
+
+
 ## Code snippet
 
 * `ctor` Constructor of class
@@ -52,6 +76,23 @@
 
 ## Test Explorer
 
+## Live Share (Collabaration)
+
+- 可像Google doc一樣即時協作Code & Build
+
+## Code Map
+
+1. 目標Function或Class右鍵→Code Map→Show on Code Map
+    ![image](./images/VisualStudio/15.png)
+2. 右鍵目標→Find All References
+    ![image](./images/VisualStudio/16.png)
+
+## Debug
+
+- Attach to process
+  - 可設定Attach to 某一個正在執行的process，如另一個Project app、或是遠端電腦、Web App等
+    ![image](./images/VisualStudio/17.png)
+
 ## Task Runner Explorer
 
 ## Parrellel Stacks
@@ -64,43 +105,78 @@
 * 可設定當Exception出現時要不要停住
 ![image](./images/VisualStudio/5.png)
 
-# Visual Studio Code
+## Issues
 
-## Markdown extensions
-
-### Markdown All in One
-
-### Marketing Preview Github Styling
-
-### markdownlint in One
-
-### Live Share (Collabaration)
-* 可像Google doc一樣即時協作Code & Build
 ### 電腦自授權SSL出問題
 
 1. 如使用Visual Studio建立的自授權SSL，預設localhost Chrome無法吃到
 ![image](./images/VisualStudio/11.png)
-2. 查看錯誤訊息，確認localhost 自授權SSL的序號
+1. 查看錯誤訊息，確認localhost 自授權SSL的序號
 ![image](./images/VisualStudio/12.png)
-3. Win 10搜尋"憑證"，進入憑證管理工具，在個人分類下找到localhost對一下序號
+1. Win 10搜尋"憑證"，進入憑證管理工具，在個人分類下找到localhost對一下序號
 ![image](./images/VisualStudio/13.png)
-4. 試著重開機，不行的話輸入以下CMD語法重設 (完成後要重開機)
+1. 試著重開機，不行的話輸入以下CMD語法重設 (完成後要重開機)
 
 ```Bash
 dotnet dev-certs https --clean
 dotnet dev-certs https --trust
 ```
 
-### Code Map
+# Visual Studio Code
 
-1. 目標Function或Class右鍵→Code Map→Show on Code Map
-    ![image](./images/VisualStudio/15.png)
-2. 右鍵目標→Find All References
-    ![image](./images/VisualStudio/16.png)
+## Settings
 
-### Debug
+- UI
 
-- Attach to process
-  - 可設定Attach to 某一個正在執行的process，如另一個Project app、或是遠端電腦、Web App等
-    ![image](./images/VisualStudio/17.png)
+```json
+"workbench.editor.wrapTabs": true,
+"workbench.editor.pinnedTabsOnSeparateRow": true,
+```
+
+- Format
+
+```C#
+"editor.formatOnSave": false,
+"[csharp]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+}
+"csharp.debug.justMyCode": false,
+"dotnet.completion.showCompletionItemsFromUnimportedNamespaces": true,
+//"csharp.suppressHiddenDiagnostics": false,
+,
+"[javascript]": {
+    "editor.formatOnSave": true
+},
+"[html]": {
+    "editor.formatOnSave": false
+},
+```
+
+- OmniSharp
+
+```json
+
+```
+
+- AI
+
+```json
+"editor.aiStats.enabled": true,
+```
+
+
+## Extensions
+
+### Markdown
+
+- Markdown All in One
+- Marketing Preview Github Styling
+- markdownlint in One
+
+### Language
+
+- Poor man's SQL formatter
+- C#
+- SQL
 - 
